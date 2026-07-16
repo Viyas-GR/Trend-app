@@ -36,7 +36,7 @@ resource "aws_instance" "jenkins" {
 
   associate_public_ip_address = true
 
-  user_data = file("${path.module}/userdata.sh")
+  user_data = file("${path.module}/scripts/bootstrap.sh")
 
   root_block_device {
     volume_size = 20
