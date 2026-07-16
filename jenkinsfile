@@ -1,36 +1,37 @@
 pipeline {
-	agent any
+    agent any
 
-	stages {
-	
-		stage('workspace cleanup') {
-			steps {
-				cleanws()
-			}
-		}
-	
-		stage('checkout') {
-			steps {
-				checkout scm
-			}
-		}
+    stages {
 
-		stage('environment check') {
-			steps {
-				sh 'whoami'
-				sh 'pwd'
-				sh 'java -version'
-				sh 'docker --version'
-                		sh 'aws --version'
-                		sh 'kubectl version --client'
-                		sh 'helm version' 	
-				}
-        	}	
- 
+        stage('Workspace Cleanup') {
+            steps {
+                cleanWs()
+            }
+        }
 
-	post {
-		always {
-			echo 'Pipeline completed'
-		}
-	}
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Environment Check') {
+            steps {
+                sh 'whoami'
+                sh 'pwd'
+                sh 'java -version'
+                sh 'git --version'
+                sh 'docker --version'
+                sh 'aws --version'
+                sh 'kubectl version --client'
+                sh 'helm version'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline completed.'
+        }
+    }
 }
