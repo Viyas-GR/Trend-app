@@ -33,8 +33,14 @@ pipeline {
 		sh 'docker build -t trend-app:latest .'
 	    }
 	}
+	
+	stage('Trivy scan') {
+	   steps {
+               sh 'trivy image trend-app:latest'
+           }		
     }
 
+}
     post {
         always {
             echo 'Pipeline completed.'
