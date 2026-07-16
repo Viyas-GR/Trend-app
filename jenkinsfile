@@ -27,13 +27,13 @@ pipeline {
                 sh 'helm version'
             }
         }
-    }
 	
-	stage('Build Docker Image') {
+        stage('Build Docker Image') {
 	    steps {
 		sh 'docker build -t trend-app:latest .'
 	    }
 	}
+    }
 
     post {
         always {
