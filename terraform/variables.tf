@@ -27,3 +27,13 @@ variable "availability_zone" {
   description = "Availability Zone"
   type        = string
 }
+
+variable "public_subnet_cidr_2" {
+  description = "Second Public Subnet CIDR"
+  type        = string
+}
+
+variable "availability_zone_2" {
+  description = "Second Availability Zone"
+  type        = string
+}

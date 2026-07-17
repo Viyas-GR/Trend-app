@@ -24,3 +24,11 @@ output "public_subnet_id" {
 output "security_group_id" {
   value = aws_security_group.jenkins_sg.id
 }
+
+output "public_subnet_1_id" {
+  value = aws_subnet.public_subnet.id
+}
+
+output "public_subnet_2_id" {
+  value = aws_subnet.public_subnet_2.id
+}
