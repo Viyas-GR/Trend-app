@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     environment {
         IMAGE_NAME = "trend-app"
         DOCKERHUB_REPO = "viyas18/trend-app"
@@ -33,54 +33,68 @@ pipeline {
                 sh 'helm version'
             }
         }
-	
-        stage('Build Docker Image') {
-	    steps {
-		sh 'docker build -t ${IMAGE_NAME}:latest .'
-	    }
-	}
-	
-	stage('Trivy scan') {
-	   steps {
-               sh 'trivy image trend-app:latest'
-           }		
-    }
 
-        stage('Tag Docker Image') {
-           steps {
-               sh '''
-               docker tag ${IMAGE_NAME}:latest ${DOCKERHUB_REPO}:latest
-               docker tag ${IMAGE_NAME}:latest ${DOCKERHUB_REPO}:${IMAGE_TAG} 
-               '''
-           }
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                    docker build -t ${IMAGE_NAME}:latest .
+                '''
+            }
         }
 
-	stage('DockerHub Login') {
-	   steps {
-	       withCredentials([usernamePassword(
-		   credentialsID: 'dockerhub-creds',
-                   usernameVariable: 'DOCKER_USERNAME',
-                   passwordVariable: 'DOCKER_PASSWORD'
-               )]) {
-                   sh '''
-                       echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-                   '''
-                   }
-            } 
+        stage('Trivy Scan') {
+            steps {
+                sh '''
+                    trivy image ${IMAGE_NAME}:latest
+                '''
+            }
+        }
 
-         stage('Push Docker Image') {
+        stage('Tag Docker Image') {
+            steps {
+                sh '''
+                    docker tag ${IMAGE_NAME}:latest ${DOCKERHUB_REPO}:latest
+                    docker tag ${IMAGE_NAME}:latest ${DOCKERHUB_REPO}:${IMAGE_TAG}
+                '''
+            }
+        }
+
+        stage('DockerHub Login') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USERNAME',
+                    passwordVariable: 'DOCKER_PASSWORD'
+                )]) {
+                    sh '''
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                    '''
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
             steps {
                 sh '''
                     docker push ${DOCKERHUB_REPO}:latest
                     docker push ${DOCKERHUB_REPO}:${IMAGE_TAG}
                 '''
-                }
-            }      
-}
+            }
+        }
+    }
 
     post {
         always {
+            sh 'docker logout || true'
             echo 'Pipeline completed.'
+        }
+
+        success {
+            echo 'Docker image pushed successfully!'
+        }
+
+        failure {
+            echo 'Pipeline failed.'
         }
     }
 }
