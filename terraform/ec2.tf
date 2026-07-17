@@ -24,7 +24,7 @@ data "aws_ami" "ubuntu" {
 
 resource "aws_instance" "jenkins" {
 
-  ami           = data.aws_ami.ubuntu.id
+  ami           = "ami-001e7cc215773c7fb"
   instance_type = var.instance_type
   key_name      = var.key_name
 
