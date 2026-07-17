@@ -81,6 +81,30 @@ pipeline {
                 '''
             }
         }
+
+        stage('Update Kubernetes Manifest') {
+            steps {
+                sh '''
+                    sed -i "s|image: ${DOCKERHUB_REPO}:.*|image: ${DOCKERHUB_REPO}:${IMAGE_TAG}|g" k8s/deployment.yaml
+                    cat k8s/deployment.yaml
+                '''
+            }
+        }
+
+        stage('Deploy to EKS') {
+            steps {
+                sh '''
+                    kubectl apply -f k8s/namespace.yaml
+                    kubectl apply -f k8s/deployment.yaml
+                    kubectl apply -f k8s/service.yaml
+
+                    kubectl rollout status deployment/trend-app -n trend-app --timeout=300s
+
+                    kubectl get pods -n trend-app
+                    kubectl get svc -n trend-app
+                '''
+                }
+            }
     }
 
     post {
@@ -98,3 +122,5 @@ pipeline {
         }
     }
 }
+
+
