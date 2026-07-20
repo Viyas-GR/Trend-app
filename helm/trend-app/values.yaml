@@ -1,0 +1,16 @@
+replicaCount: 2
+
+namespace: trend-app
+
+image:
+  repository: viyas18/trend-app
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 80
+
+container:
+  port: 80
