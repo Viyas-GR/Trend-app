@@ -1,0 +1,25 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+
+# Jenkins
+jenkins/
+
+# Kubernetes manifests
+k8s/
+
+# Terraform
+terraform/
+
+# Helper scripts
+scripts/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
