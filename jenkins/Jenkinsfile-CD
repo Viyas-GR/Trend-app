@@ -1,0 +1,66 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(
+            name: 'IMAGE_TAG',
+            defaultValue: 'latest',
+            description: 'Docker image tag to deploy'
+        )
+    }
+
+    environment {
+        DOCKERHUB_REPO = "viyas18/trend-app"
+    }
+
+    stages {
+
+        stage('Workspace Cleanup') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Update Kubernetes Manifest') {
+            steps {
+                sh """
+                    sed -i "s|image: ${DOCKERHUB_REPO}:.*|image: ${DOCKERHUB_REPO}:${IMAGE_TAG}|g" k8s/deployment.yaml
+
+                    echo "Deploying image:"
+                    grep image: k8s/deployment.yaml
+                """
+            }
+        }
+
+        stage('Deploy to EKS') {
+            steps {
+                sh """
+                    kubectl apply -f k8s/namespace.yaml
+                    kubectl apply -f k8s/deployment.yaml
+                    kubectl apply -f k8s/service.yaml
+
+                    kubectl rollout status deployment/trend-app -n trend-app --timeout=300s
+
+                    kubectl get pods -n trend-app
+                    kubectl get svc -n trend-app
+                """
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Deployment completed successfully."
+        }
+
+        failure {
+            echo "Deployment failed."
+        }
+    }
+}
